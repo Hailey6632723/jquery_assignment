@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Web Form Assignment</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .error-text {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: block;
+            min-height: 1.3rem;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        .form-select.is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .topics-error-inline {
+            color: red;
+            font-size: 0.875rem;
+            margin-left: 10px;
+        }
+        .gender-error-inline {
+            color: red;
+            font-size: 0.875rem;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <h3 class="mb-4">Interactive Web Form</h3>
+            <form id="registrationForm" novalidate>
+
+                <!-- Username -->
+                <div class="mb-3 position-relative">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control">
+                    <div class="error-text" id="usernameError"></div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3 position-relative">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control">
+                    <div class="error-text" id="emailError"></div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3 position-relative">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control">
+                    <div class="error-text" id="passwordError"></div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-3 position-relative">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control">
+                    <div class="error-text" id="confirmPasswordError"></div>
+                </div>
+
+                <!-- Interesting Topics -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold d-inline">Interesting Topics</label>
+                    <span class="topics-error-inline" id="topicsError"></span>
+                    <div class="form-check">
+                        <input class="form-check-input topic" type="checkbox" id="topic1" value="HTML">
+                        <label class="form-check-label" for="topic1">HTML</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input topic" type="checkbox" id="topic2" value="CSS">
+                        <label class="form-check-label" for="topic2">CSS</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input topic" type="checkbox" id="topic3" value="JavaScript">
+                        <label class="form-check-label" for="topic3">JavaScript</label>
+                    </div>
+                </div>
+
+                <!-- Gender -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold d-inline">Gender</label>
+                    <span class="gender-error-inline" id="genderError"></span>
+                    <select id="gender" class="form-select">
+                        <option value="">--</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    const $form = $('#registrationForm');
+
+    function showError(inputId, errorId, message) {
+        $(inputId).addClass('is-invalid');
+        $(errorId).text(message);
+    }
+
+    function clearError(inputId, errorId) {
+        $(inputId).removeClass('is-invalid');
+        $(errorId).text('');
+    }
+
+    function clearAllErrors() {
+        $('.is-invalid').removeClass('is-invalid');
+        $('.error-text, #topicsError, #genderError').text('');
+    }
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+        clearAllErrors();
+
+        let hasError = false;
+
+        // 1. Required fields (username, email, password, confirm password)
+        if (!$('#username').val().trim()) {
+            showError('#username', '#usernameError', 'This field must not be empty');
+            hasError = true;
+        }
+        if (!$('#email').val().trim()) {
+            showError('#email', '#emailError', 'This field must not be empty');
+            hasError = true;
+        }
+        if (!$('#password').val()) {
+            showError('#password', '#passwordError', 'This field must not be empty');
+            hasError = true;
+        }
+        if (!$('#confirmPassword').val()) {
+            showError('#confirmPassword', '#confirmPasswordError', 'This field must not be empty');
+            hasError = true;
+        }
+
+        // 2. Password match
+        const password = $('#password').val();
+        const confirmPassword = $('#confirmPassword').val();
+        if (password && confirmPassword && password !== confirmPassword) {
+            showError('#confirmPassword', '#confirmPasswordError', 'Confirmed password mismatched the password');
+            hasError = true;
+        }
+
+        // 3. At least one topic checked
+        if ($('.topic:checked').length === 0) {
+            $('#topicsError').text('At least one topic must be selected');
+            hasError = true;
+        }
+
+        // 4. Gender selected
+        if (!$('#gender').val()) {
+            $('#gender').addClass('is-invalid');
+            $('#genderError').text('Please choose your gender');
+            hasError = true;
+        }
+
+        // Success
+        if (!hasError) {
+            alert('Form submitted successfully!');
+            // $form[0].reset(); // Uncomment to reset form after success
+        }
+    });
+
+    // Real-time clearing of errors
+    $('#username, #email, #password, #confirmPassword').on('input', function () {
+        if ($(this).val().trim()) {
+            clearError('#' + this.id, '#' + this.id + 'Error');
+        }
+    });
+
+    $('.topic').on('change', function () {
+        if ($('.topic:checked').length > 0) {
+            $('#topicsError').text('');
+        }
+    });
+
+    $('#gender').on('change', function () {
+        if ($(this).val()) {
+            $(this).removeClass('is-invalid');
+            $('#genderError').text('');
+        }
+    });
+});
+</script>
+
+</body>
+</html>
